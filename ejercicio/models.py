@@ -1,10 +1,15 @@
 from django.db import models
+from rest_framework.exceptions import ValidationError
 
 # Create your models here.
 class ModeloBase:
     def cambioEstado(self):
         self.activo = not self.activo
         self.save()
+    def comprobacionCampos(campos,request):  
+        for campo in campos:
+            if not campo in request.data:
+                raise ValidationError({"error": f"Falta el campo: {campo}"})
 
 class Categoria (models.Model, ModeloBase):
     nombre= models.CharField(
@@ -42,7 +47,8 @@ class Ejercicio (models.Model, ModeloBase):
     categoria = models.ForeignKey(
         Categoria, 
         on_delete=models.SET_NULL,
-        null=True)
+        null=True,
+        related_name='ejercicios')
     
     activo= models.BooleanField(default=True)
     def __str__ (self): #To_string

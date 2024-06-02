@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from models import Categoria, Musculo, Ejercicio, EjercicioMusculo
 
 class CategoriaAbm(APIView):
@@ -14,9 +15,11 @@ class CategoriaAbm(APIView):
         return Response({"categorias": data})
     
     def post(self,request):
-        
-        if not 'nombre' in request.data:
-            return Response({"error: Falta el campo nombre"},status=400)
+        campos=['nombre']
+        try:
+            Categoria.comprobacionCampos(campos, request)
+        except ValidationError as e:
+            return Response(e.detail, status=400)
         
         nombre= request.data['nombre']
         
@@ -55,9 +58,11 @@ class MusculoAbm(APIView):
         return Response({"musculos":data})
 
     def post(self,request):
-
-        if not 'nombre' in request.data:
-            return Response({"error":"falta el campo nombre"},status=400)
+        campos=['nombre']
+        try:
+            Musculo.comprobacionCampos(campos, request)
+        except ValidationError as e:
+            return Response(e.detail, status=400)
 
         nombre = request.data['nombre']
         
@@ -84,7 +89,6 @@ class MusculoAbm(APIView):
             return Response({"error":" el musculo no existe"},status=404)
         
         musculo.cambioEstado()
-
             
 class EjercicioAbm(APIView):
     def get(self, request):
@@ -100,6 +104,33 @@ class EjercicioAbm(APIView):
             })
         return Response({"ejercicios":data}) 
     
+    def post(self, request):
+        campos=['nombre', 'descripcion','categoria']
+        try:
+            Ejercicio.comprobacionCampos(campos, request)
+        except ValidationError as e:
+            return Response(e.detail, status=400)
+
+        try:
+            id_categoria= request.data['categoria']
+            categoria= Categoria.objects.get(id=id_categoria)
+        except Categoria.DoesNotExist:
+            return Response({"Error":"La categoria no existe"},status=404)
+        
+        try: 
+            aux= Ejercicio.objects.get(nombre=request.data['nombre'])
+        except Ejercicio.DoesNotExist:
+            ejercicio= Ejercicio.objects.create(
+                nombre= request.data['nombre'],
+                descripcion=request.data['descripcion'],
+                categoria= categoria
+            )
+            return Response({"Mensaje":"Ejercicio creado con exito",
+                              "id": ejercicio.id}, status=200)
+        
+        return Response({"error":"El ejercicio ya existe"})
+        
+
     def put(self, request):
 
         data= request.data
@@ -152,4 +183,34 @@ class EjercicioAbm(APIView):
         
         ejercicio.cambioEstado()
 
-#agregar post
+class EjercicioMusculoAbm(APIView):
+    
+    def get(self,request):
+        ejercicios= EjercicioMusculo.objects.all()
+        data=list(map(lambda x: {'id': x.id,'ejercicio': x.ejercicio.nombre,'musculo': x.musculo.nombre}, ejercicios))
+        return Response(data)
+    
+    def post(self,request):
+        data=request.data
+        campos=['ejercicio','musculo']
+        try:
+            EjercicioMusculo.comprobacionCampos(campos, request)
+        except ValidationError as e:
+            return Response(e.detail, status=400)
+        
+        try:
+            ejercicio = Ejercicio.objects.get(id=data['ejercicio'])
+        except Ejercicio.DoesNotExist:
+            return Response({"Error":"No exite el ejercicio"}, status=404)
+        
+        try:
+            musculo = Musculo.objects.get(id=data['musculo'])
+        except Musculo.DoesNotExist:
+            return Response({"Error":"No exite el musculo"}, status=404)
+        
+        ejercicioMusculo= EjercicioMusculo.objects.create(
+                        ejercicio= ejercicio,
+                        musculo=musculo
+        )
+        return Response({"Mensaje":"ejercicio musculo creado exitosamente", 
+                         'id': ejercicioMusculo.id}, status=200)

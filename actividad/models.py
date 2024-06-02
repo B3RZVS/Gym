@@ -9,14 +9,14 @@ class ModeloBase:
 # Create your models here.
 class Actividad(models.Model, ModeloBase):
     tiempoDescanso= models.DurationField()
-    ejercicio= models.ForeignKey(Ejercicio, on_delete= models.CASCADE)
+    ejercicio= models.ForeignKey(Ejercicio, on_delete= models.CASCADE, related_name='actividades')
 
 class Serie(models.Model, ModeloBase):
     secuencia= models.IntegerField()
     peso= models.FloatField()
     tiempo= models.DurationField()    
     repeticion= models.IntegerField()
-    actividad= models.ForeignKey(Actividad, on_delete=models.CASCADE)
+    actividad= models.ForeignKey(Actividad, on_delete=models.CASCADE, related_name= 'series')
 
     def __str__ (self): #To_string
         return self.secuenciaS
