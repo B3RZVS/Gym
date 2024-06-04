@@ -126,7 +126,9 @@ class EjercicioAbm(APIView):
                 categoria= categoria
             )
             return Response({"Mensaje":"Ejercicio creado con exito",
-                              "id": ejercicio.id}, status=200)
+                              "id": ejercicio.id,
+                              #"muculos": ejercicio.asignarMusculos(request.data['musculos'])
+                              }, status=200)
         
         return Response({"error":"El ejercicio ya existe"})
         

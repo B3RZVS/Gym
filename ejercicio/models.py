@@ -53,7 +53,25 @@ class Ejercicio (models.Model, ModeloBase):
     activo= models.BooleanField(default=True)
     def __str__ (self): #To_string
         return self.nombre
+    
+    '''
+    def asignarRubros(self,r):
+        log = []
+        for rubro_id in r:
+            try:
+                rubro= Rubro.objects.get(id=rubro_id)
+            except Rubro.DoesNotExist:
+                log.append({"Rubro":f"Rubro con id {rubro_id} no existe"})
+            
+            detalle = DetalleRubro (
+                rubro = rubro,
+                persona = self
+            )
+            detalle.save()
+            log.append({"Rubro":f"Rubro con id {rubro_id} asignado"})
 
+        return log
+    '''
 class EjercicioMusculo (models.Model, ModeloBase):
     ejercicio= models.ForeignKey(Ejercicio, on_delete=models.CASCADE, related_name="detalles")    
     musculo= models.ForeignKey(Musculo, on_delete=models.CASCADE, related_name="detalles")
