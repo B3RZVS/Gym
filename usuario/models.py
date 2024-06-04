@@ -1,6 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.forms import ValidationError
+#from django.contrib.auth.hashers import make_password, check_password
 
+
+class ModeloBase:
+    def cambioEstado(self):
+        self.activo = not self.activo
+        self.save()
+    def comprobacionCampos(campos,request):  
+        for campo in campos:
+            if not campo in request.data:
+                raise ValidationError({"error": f"Falta el campo: {campo}"})
+            
 class Role(models.Model):
     ROLE_CHOICES = (
         ('profesor', 'Profesor'),
@@ -11,21 +23,14 @@ class Role(models.Model):
     def __str__(self):
         return self.name
 
-'''
-class User(models.Model):
-    phone = models.CharField(max_length=15, blank=True, null=True)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, related_name='users')
-
-    def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.role})"
-'''
     
-class User(models.Model):
+class Usuario(models.Model, ModeloBase):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nombre= models.CharField(max_length=20,null= True)
     apellido= models.CharField(max_length=20, null= True)
     email= models.EmailField(null= True)
-    phone = models.CharField(max_length=15, blank=True, null=True)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, related_name='users')
+    telefono = models.CharField(max_length=15, blank=True, null=True)
+    role = models.ForeignKey(Role, on_delete=models.SET_NULL, default= 2 , null=True, related_name='users')
     def __str__(self):
-        return self.nombre
+        return f"{self.nombre} {self.apellido}"
+    
