@@ -25,6 +25,7 @@ class Plan(models.Model, ModeloBase):
     def __str__ (self): #To_string
         return self.nombre
 
+
 class DiaPlan(models.Model, ModeloBase):
     DIAS=(
         ('1','Lunes'),
@@ -40,6 +41,29 @@ class DiaPlan(models.Model, ModeloBase):
     activo= models.BooleanField(default= True)
     def __str__ (self): #To_string
         return self.dia
+    
+    def asignarActividad(self,actividades):
+        act_totales=[]
+
+        for actividad in actividades:
+            try:
+                    actividad= Actividad.objects.get(id=actividad)
+            except Actividad.DoesNotExist:
+                    raise ValidationError({"error": f"La '{actividad}' no existe"})
+            
+            if not ActividadesPorDia.objects.filter(dia=self, actividad= actividad).exists():
+
+                aux = ActividadesPorDia.objects.create(
+                        dia=self,
+                        actividad=actividad
+                    )
+                act_totales.append(aux)
+                
+            else:
+                raise ValidationError({"error": f"La '{actividad}' ya esta en el plan"})
+
+        return aux
+    
     
 class ActividadesPorDia (models.Model, ModeloBase):
 
