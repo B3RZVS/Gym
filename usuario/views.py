@@ -18,8 +18,6 @@ class ValidarTokenView(APIView):
 
         return Response({'valido': False}, status=400)
 
-
-
 class AuthView(APIView):
     def post(self, request):
         user_data = request.data.get('username')
@@ -36,7 +34,6 @@ class AuthView(APIView):
             }, status=200)
 
         return Response({'error': 'Usuario o contraseña incorrectos'}, status=400)
-
 
 class Register(APIView):
     def post(self,request):
