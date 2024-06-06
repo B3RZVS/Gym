@@ -37,22 +37,25 @@ class Ejercicio (models.Model, ModeloBase):
     
     descripcion=models.CharField(
         max_length=100,
-        null=False)
+        null=True,
+        blank=True)
     
+    '''
     imagen = models.ImageField(
         "upload_to='ejercicios/'", 
         null=True,
         blank=True)
-
+    '''
     categoria = models.ForeignKey(
         Categoria, 
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name='ejercicios')
     
     activo= models.BooleanField(default=True)
     def __str__ (self): #To_string
-        return self.nombre
+        return f"{self.nombre} - ({self.categoria.nombre})"
     
     '''
     def asignarRubros(self,r):
@@ -72,9 +75,11 @@ class Ejercicio (models.Model, ModeloBase):
 
         return log
     '''
+
+
 class EjercicioMusculo (models.Model, ModeloBase):
     ejercicio= models.ForeignKey(Ejercicio, on_delete=models.CASCADE, related_name="detalles")    
     musculo= models.ForeignKey(Musculo, on_delete=models.CASCADE, related_name="detalles")
     
     def __str__(self):
-        return f"{self.ejercicio.nombre} - {self.musculo.nombre}"
+        return f"{self.ejercicio.nombre} ({self.ejercicio.categoria.nombre}) - {self.musculo.nombre}"

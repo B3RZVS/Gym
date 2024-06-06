@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from models import Categoria, Musculo, Ejercicio, EjercicioMusculo
+from .models import Categoria, Musculo, Ejercicio, EjercicioMusculo
 
 class CategoriaAbm(APIView):
     def get(self,request):
@@ -130,8 +130,7 @@ class EjercicioAbm(APIView):
                               #"muculos": ejercicio.asignarMusculos(request.data['musculos'])
                               }, status=200)
         
-        return Response({"error":"El ejercicio ya existe"})
-        
+        return Response({"error":"El ejercicio ya existe"})     
 
     def put(self, request):
 
